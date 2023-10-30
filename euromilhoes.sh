@@ -1,22 +1,40 @@
 #!/bin/bash
 
-repetir="s"
+numeros=($(seq 1 50))
+estrelas=($(seq 1 12))
+numeros_sorteados="numeros_sorteados.txt"
 
-while [ "$repetir" == "s" ]; do
-  echo "Gerando uma chave para o EuroMilhões:"
+if [ ! -e "$numeros_sorteados" ]; then
+    touch "$numeros_sorteados"
+fi
 
-  echo "Números (1-45):"
-  for ((i=1; i<=5; i++)); do
-    numero=$((1 + RANDOM % 45))
-    echo -n "$numero "
-  done
+numeros_sorteados=($(<"$numeros_sorteados"))
 
-  echo -e "\nEstrelas (1-12):"
-  for ((i=1; i<=2; i++)); do
-    estrela=$((1 + RANDOM % 12))
-    echo -n "$estrela "
-  done
+gerar_chave_euromilhoes() {
+    echo "Gerando chave do Euro-Milhões:"
+    
+    for numero in "${numeros_sorteados[@]}"; do
+        numeros_possiveis=(${numeros_possiveis[@]/$numero})
+    done
 
-  read -p "Deseja gerar outra chave? (s/n): " repetir
+    for ((i=0; i<5; i++)); do
+        numero_aleatorio=${numeros_possiveis[$((RANDOM % ${#numeros_possiveis[@]}))]}
+        echo "Número: $numero_aleatorio"
+        numeros_sorteados+=("$numero_aleatorio")
+    done
+
+    for ((i=0; i<2; i++)); do
+        estrela_aleatoria=${estrelas_possiveis[$((RANDOM % ${#estrelas_possiveis[@]}))]}
+        echo "Estrela: $estrela_aleatoria"
+    done
+
+    echo "${numeros_sorteados[@]}" > "$numeros_sorteados"
+}
+
+while true; do
+    gerar_chave_euromilhoes
+    read -p "Deseja gerar outra chave? (s/n): " resposta
+    if [ "$resposta" != "s" ]; then
+        break
+    fi
 done
-
